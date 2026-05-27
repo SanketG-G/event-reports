@@ -112,15 +112,19 @@ try {
     $deptArray = json_decode($checklist['department'], true);
     $header_image = "";
     
+    $dept_id_to_use = null;
     if(is_array($deptArray) && count($deptArray)==1){
-        $dept_id=reset($deptArray);
-        if (!empty($dept_id)) {
-            $dept_stmt=$conn->prepare("SELECT header_image FROM departments WHERE id=?");
-            $dept_stmt->bind_param("s",$dept_id);
-            $dept_stmt->execute();
-            $dept_row=$dept_stmt->get_result()->fetch_assoc();
-            $header_image=$dept_row['header_image'] ?? "";
-        }
+        $dept_id_to_use=reset($deptArray);
+    } elseif(!is_array($deptArray) || count($deptArray)==0){
+        $dept_id_to_use=$checklist['userdept_id'] ?? null;
+    }
+
+    if (!empty($dept_id_to_use)) {
+        $dept_stmt=$conn->prepare("SELECT header_image FROM departments WHERE id=?");
+        $dept_stmt->bind_param("s",$dept_id_to_use);
+        $dept_stmt->execute();
+        $dept_row=$dept_stmt->get_result()->fetch_assoc();
+        $header_image=$dept_row['header_image'] ?? "";
     } else {
         $default_stmt = $conn->prepare("SELECT image FROM default_header LIMIT 1");
         $default_stmt->execute();

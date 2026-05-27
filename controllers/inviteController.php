@@ -278,7 +278,7 @@ class InviteController extends BaseController
 
         // Fetch invitation for this specific guest
         $stmt = $this->pdo->prepare("
-            SELECT i.*, ch.department AS checklist_department
+            SELECT i.*, ch.department AS checklist_department, ch.userdept_id
             FROM invite i
             JOIN checklists ch ON i.checklist_id = ch.id
             WHERE i.checklist_id = ? AND i.guest_id = ?
@@ -295,18 +295,22 @@ class InviteController extends BaseController
         // Handle department header logic
         $deptArray = json_decode($invitation['checklist_department'] ?? '[]', true) ?? [];
         $header_image = '';
-
+        
+        $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
-            // Exactly one department -> Use ONLY department header
-            $dept_id = reset($deptArray);
-            if (!empty($dept_id)) {
-                $stmtDept = $this->pdo->prepare("SELECT header_image FROM departments WHERE id = ?");
-                $stmtDept->execute([$dept_id]);
-                $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
-                $header_image = $deptRow['header_image'] ?? '';
-            }
+            $dept_id_to_use = reset($deptArray);
+        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+            $dept_id_to_use = $invitation['userdept_id'] ?? null;
+        }
+
+        if (!empty($dept_id_to_use)) {
+            // Exactly one department OR zero departments (using userdept_id) -> Use ONLY department header
+            $stmtDept = $this->pdo->prepare("SELECT header_image FROM departments WHERE id = ?");
+            $stmtDept->execute([$dept_id_to_use]);
+            $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
+            $header_image = $deptRow['header_image'] ?? '';
         } else {
-            // Multiple departments (or zero) -> Use default header
+            // Multiple departments -> Use default header
             $stmtDefault = $this->pdo->query("SELECT image FROM default_header LIMIT 1");
             $defaultRow = $stmtDefault->fetch(PDO::FETCH_ASSOC);
             $header_image = $defaultRow['image'] ?? '';

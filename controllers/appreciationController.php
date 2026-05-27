@@ -261,7 +261,7 @@ class AppreciationController extends BaseController
        ✅ FETCH APPRECIATION PER GUEST
     ============================== */
    $stmt = $this->pdo->prepare("
-        SELECT a.*, ch.department AS checklist_department
+        SELECT a.*, ch.department AS checklist_department, ch.userdept_id
         FROM appreciation a
         JOIN checklists ch 
             ON BINARY a.checklist_id = BINARY ch.id
@@ -282,14 +282,18 @@ class AppreciationController extends BaseController
     $deptArray = json_decode($appreciation['checklist_department'], true) ?? [];
     $header_image = '';
 
+    $dept_id_to_use = null;
     if (is_array($deptArray) && count($deptArray) === 1) {
-        $dept_id = reset($deptArray);
-        if (!empty($dept_id)) {
-            $stmtDept = $this->pdo->prepare("SELECT header_image FROM departments WHERE id = ?");
-            $stmtDept->execute([$dept_id]);
-            $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
-            $header_image = $deptRow['header_image'] ?? '';
-        }
+        $dept_id_to_use = reset($deptArray);
+    } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        $dept_id_to_use = $appreciation['userdept_id'] ?? null;
+    }
+
+    if (!empty($dept_id_to_use)) {
+        $stmtDept = $this->pdo->prepare("SELECT header_image FROM departments WHERE id = ?");
+        $stmtDept->execute([$dept_id_to_use]);
+        $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
+        $header_image = $deptRow['header_image'] ?? '';
     } else {
         $stmtDefault = $this->pdo->query("SELECT image FROM default_header LIMIT 1");
         $defaultRow = $stmtDefault->fetch(PDO::FETCH_ASSOC);
