@@ -10,11 +10,11 @@ if (file_exists($dotenvPath . '.env')) {
 }
 
 /* Fetch environment variables — fallback to XAMPP local defaults */
-$host     = $_ENV['DB_HOST']  ?? getenv('DB_HOST')  ?: 'localhost';
-$port     = $_ENV['DB_PORT']  ?? getenv('DB_PORT')  ?: 3306;
-$dbname   = $_ENV['DB_NAME']  ?? getenv('DB_NAME')  ?: 'college_events';
-$username = $_ENV['DB_USER']  ?? getenv('DB_USER')  ?: 'root';
-$password = $_ENV['DB_PASS']  ?? getenv('DB_PASS')  ?: '';
+$host = $_ENV['MYSQLHOST'] ?? getenv('MYSQLHOST') ?? 'localhost';
+$port = $_ENV['MYSQLPORT'] ?? getenv('MYSQLPORT') ?? 3306;
+$dbname = $_ENV['MYSQLDATABASE'] ?? getenv('MYSQLDATABASE') ?? 'college_events';
+$username = $_ENV['MYSQLUSER'] ?? getenv('MYSQLUSER') ?? 'root';
+$password = $_ENV['MYSQLPASSWORD'] ?? getenv('MYSQLPASSWORD') ?? '';
 
 /* Try DB Connection */
 try {
