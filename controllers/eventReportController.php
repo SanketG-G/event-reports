@@ -110,15 +110,21 @@ private function deleteFromCloudinary($public_id)
         // HOD name - only if exactly one department
         $hod_name = 'Not assigned';
         $deptArray = json_decode($programme['department'] ?? '[]', true);
+        $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
-            $dept_id = $deptArray[0]; // Keep as UUID string
+            $dept_id_to_use = reset($deptArray);
+        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+            $dept_id_to_use = $programme['userdept_id'] ?? null;
+        }
+
+        if (!empty($dept_id_to_use)) {
             $stmtHod = $this->pdo->prepare("
                 SELECT u.username
                 FROM users u
                 WHERE u.role = 'hod' AND u.department_id = ?
                 LIMIT 1
             ");
-            $stmtHod->execute([$dept_id]);
+            $stmtHod->execute([$dept_id_to_use]);
             $hod = $stmtHod->fetch(PDO::FETCH_ASSOC);
             $hod_name = htmlspecialchars($hod['username'] ?? 'Not assigned');
         }
@@ -460,15 +466,21 @@ private function deleteFromCloudinary($public_id)
             $hod_name = 'N/A';
             $hod_sign = '';
             $deptArray = json_decode($checklist['department'] ?? '[]', true);
+            $dept_id_to_use = null;
             if (is_array($deptArray) && count($deptArray) === 1) {
-                $dept_id = $deptArray[0]; // Keep as UUID string
+                $dept_id_to_use = reset($deptArray);
+            } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+                $dept_id_to_use = $checklist['userdept_id'] ?? null;
+            }
+
+            if (!empty($dept_id_to_use)) {
                 $stmtHod = $this->pdo->prepare("
                     SELECT username AS name, sign_image
                     FROM users
                     WHERE role = 'hod' AND department_id = ?
                     LIMIT 1
                 ");
-                $stmtHod->execute([$dept_id]);
+                $stmtHod->execute([$dept_id_to_use]);
                 $hod = $stmtHod->fetch(PDO::FETCH_ASSOC);
                 $hod_name = htmlspecialchars($hod['name'] ?? 'N/A');
                 $hod_sign = $hod['sign_image'] ?? '';

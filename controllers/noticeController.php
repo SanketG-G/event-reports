@@ -72,24 +72,29 @@ class NoticeController extends BaseController
         $hod_name = 'N/A';
         
         // Get department data to check count
-        $stmtDept = $this->pdo->prepare("SELECT department FROM checklists WHERE id = ?");
+        $stmtDept = $this->pdo->prepare("SELECT department, userdept_id FROM checklists WHERE id = ?");
         $stmtDept->execute([$checklist_id]);
         $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
         
         $deptArray = json_decode($deptRow['department'] ?? '[]', true);
         
-        // Only show HOD if exactly one department exists
+        $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
-            $dept_id = $deptArray[0]; // Keep as UUID string
+            $dept_id_to_use = reset($deptArray);
+        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+            $dept_id_to_use = $deptRow['userdept_id'] ?? null;
+        }
+
+        if (!empty($dept_id_to_use)) {
             $stmtHod = $this->pdo->prepare("
                 SELECT u.username AS hod_name
                 FROM users u
                 WHERE u.role = 'hod' AND u.department_id = ?
                 LIMIT 1
             ");
-            $stmtHod->execute([$dept_id]);
-            $hodRow = $stmtHod->fetch(PDO::FETCH_ASSOC);
-            $hod_name = htmlspecialchars($hodRow['hod_name'] ?? 'N/A');
+            $stmtHod->execute([$dept_id_to_use]);
+            $hodRowData = $stmtHod->fetch(PDO::FETCH_ASSOC);
+            $hod_name = htmlspecialchars($hodRowData['hod_name'] ?? 'N/A');
         }
 
         // Check existing notice
@@ -327,16 +332,21 @@ class NoticeController extends BaseController
         $hod_name = 'N/A';
         $hod_sign = '';
         
-        // Check if exactly one department exists (same logic as manage() method)
+        $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
-            $dept_id = $deptArray[0]; // Keep as UUID string
+            $dept_id_to_use = reset($deptArray);
+        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+            $dept_id_to_use = $checklist['userdept_id'] ?? null;
+        }
+
+        if (!empty($dept_id_to_use)) {
             $stmtHod = $this->pdo->prepare("
                 SELECT username AS name, sign_image
                 FROM users
                 WHERE role = 'hod' AND department_id = ?
                 LIMIT 1
             ");
-            $stmtHod->execute([$dept_id]);
+            $stmtHod->execute([$dept_id_to_use]);
             $hod = $stmtHod->fetch(PDO::FETCH_ASSOC);
             $hod_name = htmlspecialchars($hod['name'] ?? 'N/A');
             $hod_sign = $hod['sign_image'] ?? '';

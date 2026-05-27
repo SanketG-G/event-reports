@@ -160,15 +160,21 @@ try {
     $hod_name="N/A";
     $hod_sign="";
     $deptArray = json_decode($checklist['department'] ?? '[]', true);
+    $dept_id_to_use = null;
     if (is_array($deptArray) && count($deptArray) === 1) {
-        $dept_id = $deptArray[0];
+        $dept_id_to_use = reset($deptArray);
+    } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        $dept_id_to_use = $checklist['userdept_id'] ?? null;
+    }
+
+    if (!empty($dept_id_to_use)) {
         $hod_stmt=$conn->prepare("
             SELECT username,sign_image
             FROM users
             WHERE role='hod' AND department_id=?
             LIMIT 1
         ");
-        $hod_stmt->bind_param("s",$dept_id);
+        $hod_stmt->bind_param("s",$dept_id_to_use);
         $hod_stmt->execute();
         $hod=$hod_stmt->get_result()->fetch_assoc();
         $hod_name=$hod['username'] ?? "N/A";
