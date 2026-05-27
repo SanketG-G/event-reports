@@ -22,6 +22,25 @@ $username = getenv('MYSQLUSER') ?: ($_ENV['MYSQLUSER'] ?? null);
 $password = getenv('MYSQLPASSWORD') ?: ($_ENV['MYSQLPASSWORD'] ?? null);
 
 /**
+ * DEBUG VARIABLES
+ */
+echo "<pre>";
+
+echo "HOST: ";
+var_dump($host);
+
+echo "PORT: ";
+var_dump($port);
+
+echo "DATABASE: ";
+var_dump($dbname);
+
+echo "USERNAME: ";
+var_dump($username);
+
+echo "</pre>";
+
+/**
  * DATABASE CONNECTION
  */
 try {
@@ -37,11 +56,15 @@ try {
         ]
     );
 
-    $GLOBALS['pdo'] = $pdo;
+    echo "<h2 style='color:green'>✅ Database Connected Successfully</h2>";
 
 } catch (PDOException $e) {
 
-    error_log("❌ Database Connection Failed: " . $e->getMessage());
+    echo "<h2 style='color:red'>❌ Database Connection Failed</h2>";
 
-    throw new Exception("Database connection failed.");
+    echo "<pre>";
+    echo htmlspecialchars($e->getMessage());
+    echo "</pre>";
 }
+
+exit;
