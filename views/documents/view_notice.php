@@ -85,6 +85,7 @@
                     Coordinator
                     Keystone School of Engineering
                 </div>
+                <?php endif; ?>
 
                 <!-- HOD - Only show if HOD name is not default 'N/A' (meaning exactly one department exists) -->
                 <?php if (!empty($is_multiple_departments) || (!empty($hod_name) && $hod_name !== 'N/A')): ?>
