@@ -2,18 +2,19 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-/* Fetch environment variables */
-$host     = getenv('DB_HOST');
-$port     = getenv('DB_PORT') ?: 3306;
-$dbname   = getenv('DB_NAME');
-$username = getenv('DB_USER');
-$password = getenv('DB_PASS');
-
-/* Validate environment variables */
-if (empty($host) || empty($username) || empty($dbname) || empty($password)) {
-    error_log("❌ Database environment variables are missing.");
-    throw new Exception("Database configuration error.");
+/* Load .env file if it exists (local development) */
+$dotenvPath = __DIR__ . '/../';
+if (file_exists($dotenvPath . '.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
+    $dotenv->safeLoad();
 }
+
+/* Fetch environment variables — fallback to XAMPP local defaults */
+$host     = $_ENV['DB_HOST']  ?? getenv('DB_HOST')  ?: 'localhost';
+$port     = $_ENV['DB_PORT']  ?? getenv('DB_PORT')  ?: 3306;
+$dbname   = $_ENV['DB_NAME']  ?? getenv('DB_NAME')  ?: 'college_events';
+$username = $_ENV['DB_USER']  ?? getenv('DB_USER')  ?: 'root';
+$password = $_ENV['DB_PASS']  ?? getenv('DB_PASS')  ?: '';
 
 /* Try DB Connection */
 try {

@@ -112,6 +112,12 @@
                 <hr>
 
                 <!-- Notice Fields -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0 fw-bold">Notice Content</h5>
+                    <button type="button" class="btn btn-warning btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#aiNoticeModal">
+                        <i class="bi bi-magic"></i> Auto-Fill with AI
+                    </button>
+                </div>
                 <div class="mb-3">
                     <label class="form-label">Notice Date <span class="text-danger">*</span></label>
                     <input type="date" name="date" class="form-control"
@@ -302,5 +308,170 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
+
+<!-- AI Notice Modal (outside container to avoid z-index issues) -->
+<div class="modal fade" id="aiNoticeModal" tabindex="-1" aria-labelledby="aiNoticeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="aiNoticeModalLabel"><i class="bi bi-robot"></i> AI Notice Generator</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Provide event details below. The AI will generate formal content for the "Dear Students" and "Event Highlights" sections.</p>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Event Name</label>
+                    <input type="text" class="form-control" id="aiEventName" value="<?= htmlspecialchars($programme_name ?? '') ?>" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Event Date</label>
+                    <input type="text" class="form-control" id="aiEventDate" value="<?= htmlspecialchars($programme_date ?? '') ?>" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Department</label>
+                    <input type="text" class="form-control" id="aiDepartment" placeholder="e.g., Computer Engineering">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Event Topic / Theme</label>
+                    <input type="text" class="form-control" id="aiEventTopic" placeholder="e.g., Recent Advances in Artificial Intelligence">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Target Audience</label>
+                    <input type="text" class="form-control" id="aiTargetAudience" value="All students and faculty" placeholder="e.g., T.E. and B.E. Computer Engineering students">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Guest Speaker(s)</label>
+                    <input type="text" class="form-control" id="aiGuestName" placeholder="e.g., Mr. John Doe, CEO of TechCorp">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Event Time</label>
+                        <input type="time" class="form-control" id="aiEventTime"
+                               value="<?= htmlspecialchars($form_data['event_time'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Event Venue</label>
+                        <input type="text" class="form-control" id="aiEventVenue" placeholder="e.g., Seminar Hall, Main Building"
+                               value="<?= htmlspecialchars($form_data['event_venue'] ?? '') ?>">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">College Name</label>
+                    <input type="text" class="form-control" id="aiCollegeName" value="KSE" placeholder="e.g., KSE College">
+                </div>
+
+                <div id="aiNoticeLoading" class="text-center d-none my-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 fw-bold text-primary">AI is generating the notice... Please wait.</p>
+                </div>
+                <div id="aiNoticeError" class="alert alert-danger d-none mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary fw-bold" id="generateNoticeBtn" onclick="generateNoticeLetter()">Generate Notice</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function generateNoticeLetter() {
+    const btn = document.getElementById('generateNoticeBtn');
+    const loading = document.getElementById('aiNoticeLoading');
+    const errorAlert = document.getElementById('aiNoticeError');
+
+    // Read the time/venue from the modal inputs
+    const modalTimeInput = document.getElementById('aiEventTime');
+    const modalVenueInput = document.getElementById('aiEventVenue');
+
+    const data = {
+        eventName: document.getElementById('aiEventName').value,
+        eventDate: document.getElementById('aiEventDate').value,
+        eventVenue: modalVenueInput ? modalVenueInput.value : '',
+        eventTime: modalTimeInput ? modalTimeInput.value : '',
+        eventTopic: document.getElementById('aiEventTopic').value,
+        targetAudience: document.getElementById('aiTargetAudience').value,
+        guestName: document.getElementById('aiGuestName').value,
+        department: document.getElementById('aiDepartment').value,
+        collegeName: document.getElementById('aiCollegeName').value
+    };
+
+    btn.disabled = true;
+    loading.classList.remove('d-none');
+    errorAlert.classList.add('d-none');
+
+    try {
+        const response = await fetch('<?= Url::to("/api/generate-notice") ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Failed to generate notice');
+        }
+
+        // Fill "Dear Students" (CKEditor or textarea)
+        if (result.dear) {
+            if (window.editors && window.editors['dear']) {
+                window.editors['dear'].setData(result.dear);
+            } else {
+                const textarea = document.querySelector('textarea[name="dear"]');
+                if (textarea) textarea.value = result.dear;
+            }
+        }
+
+        // Fill "Event Highlights" (CKEditor or textarea)
+        if (result.event_highlights) {
+            if (window.editors && window.editors['event_highlights']) {
+                window.editors['event_highlights'].setData(result.event_highlights);
+            } else {
+                const textarea = document.querySelector('textarea[name="event_highlights"]');
+                if (textarea) textarea.value = result.event_highlights;
+            }
+        }
+
+        // Auto-fill Event Time from modal input into the main form
+        if (modalTimeInput && modalTimeInput.value) {
+            const mainTimeInput = document.querySelector('input[name="event_time"]');
+            if (mainTimeInput) {
+                mainTimeInput.value = modalTimeInput.value;
+            }
+        }
+
+        // Auto-fill Event Venue from modal input into the main form
+        if (modalVenueInput && modalVenueInput.value.trim()) {
+            const mainVenueInput = document.querySelector('input[name="event_venue"]');
+            if (mainVenueInput) {
+                mainVenueInput.value = modalVenueInput.value.trim();
+            }
+        }
+
+        // Close modal
+        const modalEl = document.getElementById('aiNoticeModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+
+    } catch (error) {
+        errorAlert.textContent = error.message;
+        errorAlert.classList.remove('d-none');
+    } finally {
+        btn.disabled = false;
+        loading.classList.add('d-none');
+    }
+}
+</script>
 
 <?php require_once __DIR__ . '/../../views/includes/footer.php'; ?>

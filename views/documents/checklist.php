@@ -3,13 +3,13 @@ require_once __DIR__ . '/../../init/session.php';
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /event-reports/views/auth/login.php");
+    header("Location: " . Url::to('login'));
     exit;
 }
 
 // Role check
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'coordinator') {
-    header("Location: /event-reports/views/auth/login.php");
+    header("Location: " . Url::to('login'));
     exit();
 }
 
@@ -34,7 +34,7 @@ if ($edit_mode) {
         $checklist_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$checklist_data) {
-            header("Location: /event-reports/dashboard?error=Checklist not found");
+            header("Location: " . Url::to('dashboard') . "?error=Checklist not found");
             exit;
         }
 
@@ -49,12 +49,12 @@ if ($edit_mode) {
         $incharges_data = $incharge_stmt->fetchAll(PDO::FETCH_ASSOC);
 
     } catch (PDOException $e) {
-        header("Location: /event-reports/dashboard?error=Error loading checklist");
+        header("Location: " . Url::to('dashboard') . "?error=Error loading checklist");
         exit;
     }
 }
 
-$form_action = $edit_mode ? '/event-reports/documents/checklist/update' : '/event-reports/documents/checklist';
+$form_action = $edit_mode ? Url::to('create-checklist') . '/update' : Url::to('create-checklist');
 ?>
 
 <div class="container mb-5 mt-5">
@@ -172,6 +172,7 @@ $form_action = $edit_mode ? '/event-reports/documents/checklist/update' : '/even
             <input class="form-control" name="coordinator" id="coordinator" value="<?= htmlspecialchars($username ?? '') ?>" readonly>
         </div>
 
+
         <!-- INVITATION -->
         <label>Invitation to related faculty/students/dept</label><br>
         <?php foreach (['F.E','S.E','T.E','B.E'] as $inv): ?>
@@ -180,6 +181,7 @@ $form_action = $edit_mode ? '/event-reports/documents/checklist/update' : '/even
                 <label class="form-check-label" for="inv_<?= $inv ?>"><?= $inv ?></label>
             </div>
         <?php endforeach; ?>
+        <br>
 
         <!-- COMMUNICATION -->
         <div class="form-check mb-3">
@@ -400,5 +402,5 @@ document.getElementById('multi_day').addEventListener('change', function(){
 })();
 </script>
 
-<script src="/event-reports/public/js/checklistValidation.js"></script>
+<script src="<?= Url::getBaseUrl() ?>/public/js/checklistValidation.js"></script>
 <?php require_once __DIR__ . '/../../views/includes/footer.php'; ?>

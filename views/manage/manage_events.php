@@ -92,7 +92,7 @@
                                                 <td><?= htmlspecialchars(date('d-m-Y', strtotime($event['end_date']))) ?></td>
                                                 <td><?= htmlspecialchars($event['created_by_name'] ?? '—') ?></td>
                                                 <td>
-                                                    <a href="/event-reports/manage/events/delete?delete_event=<?= htmlspecialchars($event['id']) ?>" 
+                                                    <a href="<?= $base ?>/manage/events/delete?delete_event=<?= htmlspecialchars($event['id']) ?>" 
                                                        class="btn btn-sm btn-danger" 
                                                        onclick="return confirm('Delete this event?')">
                                                         Delete

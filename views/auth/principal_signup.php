@@ -22,7 +22,7 @@ $_SESSION['csrf_token'] = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
 
   <h2 class="mb-4 text-center">Principal Signup</h2>
 
-    <form class="row g-3 needs-validation" action="/event-reports/signup" method="POST" enctype="multipart/form-data" novalidate>
+    <form class="row g-3 needs-validation" action="<?= Url::to('signup') ?>" method="POST" enctype="multipart/form-data" novalidate>
     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 
     <div class="mb-3">

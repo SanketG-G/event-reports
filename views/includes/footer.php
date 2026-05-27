@@ -5,7 +5,8 @@
     <!-- LEFT : LOGO + ADDRESS -->
     <div class="footer-col">
       <div class="footer-logo">
-        <img src="/public/images/keystone_logo.jpeg" alt="KSE Logo">
+  <?php $base = Url::getBaseUrl(); ?>
+      <img src="<?= $base ?>/public/images/keystone_logo.jpeg" alt="KSE Logo">
         <h3>Keystone School of Engineering</h3>
         <p>Approved by AICTE, Govt. of Maharashtra</p>
       </div>
@@ -22,17 +23,7 @@
       </p>
     </div>
 
-    <!-- MIDDLE : QUICK LINKS -->
-    <div class="footer-col">
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="#">Complaints & Grievance</a></li>
-        <li><a href="#">Online Grievance</a></li>
-        <li><a href="#">AICTE</a></li>
-        <li><a href="#">NAAC</a></li>
-        <li><a href="#">SPPU</a></li>
-      </ul>
-    </div>
+
 
     <!-- RIGHT : PORTAL INFO -->
     <div class="footer-col">
@@ -40,9 +31,8 @@
       <p>Smart Event Documentation System</p>
 
       <ul>
-        <li><a href="#">Downloads</a></li>
-        <li><a href="#">MoUs</a></li>
-        <li><a href="#">Press Release</a></li>
+        <li><a href="mailto:foundation@shalaka.org">Contact Admin</a></li>
+        <li><a href="<?= Url::to('help') ?>">Help & Documentation</a></li>
       </ul>
     </div>
 
@@ -59,42 +49,50 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Custom JS -->
-<script src="/public/js/clientSideValidation.js"></script>
+<script src="<?= $base ?>/public/js/clientSideValidation.js"></script>
 
 <!-- CKEditor -->
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/super-build/ckeditor.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    document.querySelectorAll('.ckeditor-field').forEach(function (element) {
-        ClassicEditor
-            .create(element, {
-                toolbar: [
-                    'heading',
-                    '|',
-                    'bold',
-                    'italic',
-                    'underline',
-                    '|',
-                    'bulletedList',
-                    'numberedList',
-                    '|',
-                    'alignment',
-                    '|',
-                    'indent',
-                    'outdent',
-                    '|',
-                    'blockQuote',
-                    '|',
-                    'undo',
-                    'redo'
-                ]
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    });
+window.editors = window.editors || {};
+document.querySelectorAll('.ckeditor-field').forEach(function (element) {
+    CKEDITOR.ClassicEditor
+        .create(element, {
+            toolbar: {
+                items: [
+                    'heading', '|', 'bold', 'italic', 'underline', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'alignment:left', 'alignment:center', 'alignment:right', 'alignment:justify', '|',
+                    'indent', 'outdent', '|', 'blockQuote', '|', 'undo', 'redo'
+                ],
+                shouldNotGroupWhenFull: false
+            },
+            alignment: {
+                options: ['left', 'center', 'right', 'justify']
+            },
+            removePlugins: [
+                'CKBox', 'CKFinder', 'EasyImage',
+                'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges',
+                'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments',
+                'TrackChanges', 'TrackChangesData', 'RevisionHistory',
+                'Pagination', 'WProofreader', 'MathType', 'SlashCommand',
+                'Template', 'DocumentOutline', 'FormatPainter', 'TableOfContents',
+                'PasteFromOfficeEnhanced', 'CaseChange'
+            ]
+        })
+        .then(editor => {
+            // Store instance by the textarea's name attribute
+            if (element.name) {
+                window.editors[element.name] = editor;
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+});
 
 });
 </script>

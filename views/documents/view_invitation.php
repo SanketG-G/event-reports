@@ -1,6 +1,6 @@
 <?php require_once __DIR__ . '/../../views/layouts/header.php'; ?>
 
-<link rel="stylesheet" href="/event-reports/public/css/view.css">
+<link rel="stylesheet" href="<?= $base ?>/public/css/view.css">
 
 <div class="container">
     <div id="invitation-card" class="card mt-5">
@@ -73,7 +73,7 @@
 
             <!-- Footer Image -->
             <div class="img-logo text-center">
-                <img src="/public/images/view_footer.png" alt="Footer Image">
+                <img src="<?= $base ?>/public/images/view_footer.png" alt="Footer Image">
             </div>
 
             <!-- Buttons -->

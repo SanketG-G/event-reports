@@ -3,7 +3,7 @@ require_once __DIR__ . '/../layouts/header.php';
 
 
 if(!isset($_SESSION['user_id'])){
-    header("Location: /event-reports/views/auth/login.php");
+    header("Location: " . Url::to('login'));
     exit;
 }
 
@@ -405,5 +405,5 @@ Current File :
 
 
 
-<script src="/public/js/checklistValidation.js"></script>
+<script src="<?= Url::getBaseUrl() ?>/public/js/checklistValidation.js"></script>
 <?php require_once __DIR__ . '/../../views/includes/footer.php'; ?>

@@ -6,7 +6,10 @@ require_once __DIR__ . '/../layouts/header.php';
 // -------------------- PATH HELPER --------------------
 function getAssetPath($path) {
     // Remove common project path prefixes to get relative path
+    $base = rtrim(Url::getBaseUrl(), '/');
     $path = str_replace([
+        $base . '/public/',
+        $base . '/',
         '/event-reports/public/', 
         'event-reports/public/',
         '/events-reports/public/',
@@ -20,7 +23,7 @@ function getAssetPath($path) {
 }
 ?>
 
-<link rel="stylesheet" href="/event-reports/public/css/view.css">
+<link rel="stylesheet" href="<?= $base ?>/public/css/view.css">
 
 <div class="container" id="pdf-content">
 <div class="card mt-5">
@@ -135,14 +138,14 @@ Principal
 
 <br>
 <div class="img-logo text-center">
-    <img src="/public/images/view_footer.png" alt="Footer Image">
+    <img src="<?= $base ?>/public/images/view_footer.png" alt="Footer Image">
 </div>
 
 <!-- BUTTONS -->
 <?php if(!empty($canAccessButtons)): ?>
 <div>
     <a href="<?= Url::to('/documents/event-report/' . $checklist_id) ?>" class="btn btn-secondary">Edit Event Report</a>
-    <a href="/event-reports/controllers/documents/download_word.php?checklist_id=<?= $checklist_id ?>" class="btn btn-primary">Download Word</a>
+   
     <a href="<?= Url::to('/documents/download/' . $checklist_id) ?>" class="btn btn-primary"> Download PDF</a>
 </div>
 <?php endif; ?>

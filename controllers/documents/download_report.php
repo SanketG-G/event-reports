@@ -7,19 +7,33 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// -------------------- LOAD ENV --------------------
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../core/Url.php';
+$dotenvPath = __DIR__ . '/../../';
+if (file_exists($dotenvPath . '.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
+    $dotenv->safeLoad();
+}
+
 // -------------------- DB --------------------
-$conn = new mysqli(
-    getenv('DB_HOST'),
-    getenv('DB_USER'),
-    getenv('DB_PASS'),
-    getenv('DB_NAME'),
-    getenv('DB_PORT') ?: 3306
-);
+$dbHost = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
+$dbPort = $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: 3306;
+$dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'college_events';
+$dbUser = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
+$dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '';
+
+$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName, $dbPort);
 // VERY IMPORTANT FOR RAILWAY
 $conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 5);
 if ($conn->connect_error) {
     die("DB Error: " . $conn->connect_error);
 }
+
+// Select database explicitly
+$conn->select_db($dbName);
+
 // -------------------- CHECKLIST ID --------------------
 $checklist_id = $_GET['id'] ?? null;
 if(!$checklist_id){
@@ -27,8 +41,8 @@ if(!$checklist_id){
 }
 
 function normalizePath($path){
-    $path = str_replace('/event-reports/public/', '', $path);
-    $path = str_replace('/event-reports/public/', '', $path);
+    $base = rtrim(Url::getBaseUrl(), '/');
+    $path = str_replace([$base . '/public/', $base . '/', '/event-reports/public/'], '', $path);
     return ltrim($path,'/');
 }
 
@@ -40,7 +54,14 @@ function buildImagePath($image_value) {
     if (filter_var($image_value, FILTER_VALIDATE_URL) && stripos($image_value, 'https://res.cloudinary.com') === 0) {
         return $image_value;
     }
-    return 'https://event-reports-production.up.railway.app/' . ltrim($image_value, '/');
+    
+    // Check if it already has the base URL
+    $base = rtrim(Url::getBaseUrl(), '/');
+    if (strpos($image_value, $base) === 0) {
+        $image_value = substr($image_value, strlen($base));
+    }
+    
+    return Url::absolute('/' . ltrim($image_value, '/'));
 }
 
 // -------------------- FETCH DATA --------------------
@@ -335,7 +356,7 @@ $pdf->Ln(8);
     }
 } else {
     $pdf->SetFont('helvetica', '', 11);
-    $pdf->Cell(0, 10, 'No photos available.', 0, 1, 'C');
+    $pdf->Cell(0, 10, '', 0, 1, 'C');
     $pdf->Ln(5);
 }
 

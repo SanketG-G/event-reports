@@ -17,7 +17,7 @@ Invalid email or password.
 </div>
 <?php endif; ?>
 
-<form action="/event-reports/login"
+<form action="<?= Url::to('login') ?>"
       method="POST"
       class="needs-validation"
       novalidate>

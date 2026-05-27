@@ -51,7 +51,7 @@ if (!$principalExists) {
 <a class="navbar-brand d-flex align-items-center"
    href="<?= Url::to('home') ?>">
   <img
-    src="/public/images/keystone_logo.jpeg"
+    src="<?= $base ?>/public/images/keystone_logo.jpeg"
     alt="Logo"
     class="navbar-logo me-2"
   >

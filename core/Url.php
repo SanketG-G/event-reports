@@ -10,8 +10,7 @@ It  builds correct, clean, consistent links for your whole website.
 */
 
 class Url {
-    private static $baseUrl = '/event-reports';
-    private static $routes = [];
+    private static $baseUrl = null;
 
     /**
      * Set the base URL
@@ -24,6 +23,15 @@ class Url {
      * Get the base URL
      */
     public static function getBaseUrl() {
+        if (self::$baseUrl === null) {
+            if (isset($_ENV['BASE_URL'])) {
+                self::$baseUrl = $_ENV['BASE_URL'];
+            } elseif (getenv('BASE_URL') !== false) {
+                self::$baseUrl = getenv('BASE_URL');
+            } else {
+                self::$baseUrl = '/event-reports';
+            }
+        }
         return self::$baseUrl;
     }
 
@@ -53,12 +61,13 @@ class Url {
             'view-document' => '/documents/view/{type}/{id}',
             'download-report' => '/documents/download/{id}',
             'download-word' => '/documents/download-word/{id}',
+            'help' => '/help',
         ];
 
         if (!isset($patterns[$routeName])) {
             // For custom routes, ensure proper URL construction
             $url = ltrim($routeName, '/');
-            return self::$baseUrl . '/' . $url;
+            return self::getBaseUrl() . '/' . $url;
         }
 
         $url = $patterns[$routeName];
@@ -69,7 +78,7 @@ class Url {
         }
 
         // Ensure proper URL construction without double slashes
-        $baseUrl = rtrim(self::$baseUrl, '/');
+        $baseUrl = rtrim(self::getBaseUrl(), '/');
         $url = ltrim($url, '/');
         
         return $baseUrl . '/' . $url;
@@ -80,7 +89,7 @@ class Url {
      */
     public static function current() {
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        return self::$baseUrl . $uri;
+        return self::getBaseUrl() . $uri;
     }
 
     /**
@@ -89,7 +98,7 @@ class Url {
     public static function absolute($path = '') {
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'];
-        return $protocol . '://' . $host . self::$baseUrl . $path;
+        return $protocol . '://' . $host . self::getBaseUrl() . $path;
     }
 
     /**

@@ -133,8 +133,15 @@
 
                     <hr class="my-4">
 
-                    <!-- REPORT CONTENT -->
-                   
+                    <!-- REPORT CONTENT & AI GENERATOR -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+                        <h3 class="m-0">Report Content</h3>
+                        <button type="button" class="btn btn-warning fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#aiGeneratorModal">
+                            <i class="bi bi-magic"></i> Auto-Fill with AI
+                        </button>
+                    </div>
+
+                    <!-- Modal moved to bottom to prevent z-index issues -->
 
                     <label class="mt-2 mb-1 fw-bold">Description</label>
                     <textarea class="form-control mb-3 ckeditor-field" name="description" rows="5"  ><?= $form_data['description'] ?></textarea>
@@ -265,6 +272,59 @@
 
     </div> <!-- end row -->
 </div> <!-- end container-fluid -->
+
+<!-- AI Generator Modal (moved outside main container to fix z-index issues) -->
+<div class="modal fade" id="aiGeneratorModal" tabindex="-1" aria-labelledby="aiGeneratorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="aiGeneratorModalLabel"><i class="bi bi-robot"></i> AI Report Generator</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Provide some basic details below. Our AI will automatically generate formal content for the Description, Activities, Significance, Conclusion, and Participation fields.</p>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Event Name</label>
+                    <input type="text" class="form-control" id="aiEventName" value="<?= htmlspecialchars($programme['programme_name'] ?? '') ?>" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Target Audience / Participants</label>
+                    <input type="text" class="form-control" id="aiParticipants" placeholder="e.g., Third-year Computer Engineering students">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Key Topics Covered</label>
+                    <input type="text" class="form-control" id="aiTopics" placeholder="e.g., Artificial Intelligence, Machine Learning, Future Trends">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Main Activities</label>
+                    <input type="text" class="form-control" id="aiActivities" placeholder="e.g., Keynote speech, Hands-on workshop, Q&A session">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Outcomes / Success Metrics</label>
+                    <input type="text" class="form-control" id="aiOutcomes" placeholder="e.g., Students learned basics of AI, high engagement">
+                </div>
+                
+                <div id="aiLoadingIndicator" class="text-center d-none my-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 fw-bold text-primary">AI is generating your report... Please wait.</p>
+                </div>
+                <div id="aiErrorAlert" class="alert alert-danger d-none mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary fw-bold" id="generateAiBtn" onclick="generateAiReport()">Generate Content</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 /* ================================
    PHOTO ROW MANAGEMENT
@@ -355,6 +415,73 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!img.alt) img.alt = "Existing event photo";
     });
 });
+
+/* ================================
+   AI GENERATOR LOGIC
+================================ */
+async function generateAiReport() {
+    const btn = document.getElementById('generateAiBtn');
+    const loading = document.getElementById('aiLoadingIndicator');
+    const errorAlert = document.getElementById('aiErrorAlert');
+
+    // Collect data
+    const data = {
+        eventName: document.getElementById('aiEventName').value,
+        participants: document.getElementById('aiParticipants').value,
+        topics: document.getElementById('aiTopics').value,
+        activities: document.getElementById('aiActivities').value,
+        outcomes: document.getElementById('aiOutcomes').value
+    };
+
+    // UI Feedback
+    btn.disabled = true;
+    loading.classList.remove('d-none');
+    errorAlert.classList.add('d-none');
+
+    try {
+        const response = await fetch('<?= Url::to("/api/generate-report") ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Failed to generate report');
+        }
+
+        // Populate CKEditor instances (if available) or standard textareas
+        const fields = ['description', 'activities', 'significance', 'conclusion', 'faculties_participation'];
+        
+        fields.forEach(field => {
+            if (result[field]) {
+                if (window.editors && window.editors[field]) {
+                    window.editors[field].setData(result[field]);
+                } else {
+                    const textarea = document.querySelector(`textarea[name="${field}"]`);
+                    if (textarea) textarea.value = result[field];
+                }
+            }
+        });
+
+        // Close Modal on Success
+        const modalEl = document.getElementById('aiGeneratorModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+
+    } catch (error) {
+        errorAlert.textContent = error.message;
+        errorAlert.classList.remove('d-none');
+    } finally {
+        btn.disabled = false;
+        loading.classList.add('d-none');
+    }
+}
 </script>
 
 <?php require_once __DIR__ . '/../../views/includes/footer.php'; ?>

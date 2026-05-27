@@ -29,6 +29,7 @@ require_once __DIR__ . '/../controllers/appreciationController.php';
 require_once __DIR__ . '/../controllers/eventReportController.php';
 require_once __DIR__ . '/../controllers/upcomingEventController.php';
 require_once __DIR__ . '/../controllers/homeController.php';
+require_once __DIR__ . '/../controllers/AiController.php';
 
 
 $router = new Router();
@@ -157,8 +158,10 @@ PUBLIC HOME ROUTE
 // Home / Dashboard (now using controller)
 $router->get('/', 'HomeController@index');          // Public access
 
-
-
+// Help & Documentation
+$router->get('/help', function() {
+    require_once __DIR__ . '/../views/pages/help.php';
+});
 /* ============================================================
    AUTHENTICATION ROUTES
 ============================================================ */
@@ -328,6 +331,14 @@ $router->post('/documents/appreciation/{checklist_id}', 'AppreciationController@
 
 // View saved appreciation letter (final read-only page)
 $router->get('/documents/view/appreciation/{checklist_id}', 'AppreciationController@view', ['auth', 'uuid', 'documentAuth', 'audit:view']);
+
+/* ============================================================
+   AI ROUTES
+============================================================ */
+$router->post('/api/generate-report', 'AiController@generateReport', ['auth']);
+$router->post('/api/generate-appreciation', 'AiController@generateAppreciation', ['auth']);
+$router->post('/api/generate-invitation', 'AiController@generateInvitation', ['auth']);
+$router->post('/api/generate-notice', 'AiController@generateNotice', ['auth']);
 
 
 /* ============================================================

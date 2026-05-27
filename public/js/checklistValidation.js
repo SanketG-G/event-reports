@@ -68,6 +68,7 @@ function addInchargeRow() {
         <td>
             <input type="text" 
                    name="incharge_name[]" 
+                   class="form-control"
                    placeholder="Enter Incharge Name"
                    pattern="[A-Za-z\\s]+"
                    title="Only letters and spaces allowed"
@@ -84,6 +85,7 @@ function addInchargeRow() {
 </td>
 <td class="text-center">
             <button type="button" 
+                    class="btn btn-danger btn-md"
                     onclick="deleteInchargeRow(this)">
                 Delete
             </button>
