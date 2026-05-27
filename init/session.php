@@ -1,30 +1,81 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
+require_once __DIR__ . '/../vendor/autoload.php';
 
-    ini_set('session.use_strict_mode', 1);
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+/**
+ * ------------------------------------------------
+ * LOAD ENV FILE (LOCAL ONLY)
+ * ------------------------------------------------
+ */
 
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path' => '/',
-        'secure' => isset($_SERVER['HTTPS']),
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
+$dotenvPath = __DIR__ . '/../';
 
-    session_start();
+if (file_exists($dotenvPath . '.env')) {
 
-    // Session timeout (30 minutes)
-    $timeout = 1800;
+    $dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
+    $dotenv->safeLoad();
+}
 
-    if (isset($_SESSION['LAST_ACTIVITY']) &&
-        (time() - $_SESSION['LAST_ACTIVITY']) > $timeout) {
+/**
+ * ------------------------------------------------
+ * DATABASE VARIABLES
+ * ------------------------------------------------
+ * Railway MySQL variables:
+ * MYSQLHOST
+ * MYSQLPORT
+ * MYSQLDATABASE
+ * MYSQLUSER
+ * MYSQLPASSWORD
+ */
 
-        session_unset();
-        session_destroy();
-    }
+$host = getenv('MYSQLHOST') ?: ($_ENV['MYSQLHOST'] ?? null);
+$port = getenv('MYSQLPORT') ?: ($_ENV['MYSQLPORT'] ?? 3306);
+$dbname = getenv('MYSQLDATABASE') ?: ($_ENV['MYSQLDATABASE'] ?? null);
+$username = getenv('MYSQLUSER') ?: ($_ENV['MYSQLUSER'] ?? null);
+$password = getenv('MYSQLPASSWORD') ?: ($_ENV['MYSQLPASSWORD'] ?? null);
 
-    $_SESSION['LAST_ACTIVITY'] = time();
+/**
+ * ------------------------------------------------
+ * DATABASE CONNECTION
+ * ------------------------------------------------
+ */
+
+try {
+
+    $pdo = new PDO(
+        "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4",
+        $username,
+        $password,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]
+    );
+
+    // Store globally
+    $GLOBALS['pdo'] = $pdo;
+
+    error_log("✅ Database connected successfully");
+
+} catch (PDOException $e) {
+
+    error_log("❌ Database Connection Failed: " . $e->getMessage());
+
+    die(
+        '<pre style="padding:20px;font-size:16px;color:red;">' .
+        htmlspecialchars($e->getMessage()) .
+        '</pre>'
+    );
+}
+
+/**
+ * ------------------------------------------------
+ * CSRF TOKEN
+ * ------------------------------------------------
+ */
+
+if (empty($_SESSION['csrf_token'])) {
+
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
