@@ -7,7 +7,7 @@
         <div class="card-body">
             <!-- Department Header Image -->
             <div class="img-logo text-center">
-                <img src="<?= htmlspecialchars($header_image ?? '') ?>" alt="Department Header Image">
+                <img src="<?= htmlspecialchars($header_image ?? '') ?>" alt="Department Header Image" crossorigin="anonymous">
             </div>
             <br><br>
             <h1 class="card-title text-center invitation-title" style="font-size: 2.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
@@ -36,7 +36,7 @@
                 <!-- Coordinator -->
                 <div>
                     <?php if (!empty($coordinator_sign)): ?>
-                        <img src="<?= htmlspecialchars($coordinator_sign) ?>" style="width:150px; height:auto;">
+                        <img src="<?= htmlspecialchars($coordinator_sign) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
                     <?php endif; ?>
                     <strong><?= htmlspecialchars($coordinator_name ?? 'Coordinator') ?></strong>
                     <strong>Coordinator</strong>
@@ -47,7 +47,7 @@
                 <?php if (!empty($hod_name) && $hod_name !== 'N/A'): ?>
                     <div>
                         <?php if (!empty($hod_sign)): ?>
-                            <img src="<?= htmlspecialchars($hod_sign) ?>" style="width:150px; height:auto;">
+                            <img src="<?= htmlspecialchars($hod_sign) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
                         <?php endif; ?>
                         <strong><?= htmlspecialchars($hod_name) ?></strong>
                         <strong>HOD</strong>
@@ -58,7 +58,7 @@
                 <!-- Principal -->
                 <div>
                     <?php if (!empty($principal_sign)): ?>
-                        <img src="<?= htmlspecialchars($principal_sign) ?>" style="width:150px; height:auto;">
+                        <img src="<?= htmlspecialchars($principal_sign) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
                     <?php endif; ?>
                     <strong><?= htmlspecialchars($principal_name ?? 'Principal') ?></strong>
                     <strong>Principal</strong>
@@ -69,7 +69,7 @@
 
             <!-- Footer Image -->
             <div class="img-logo text-center">
-               <img src="<?= $base ?>/public/images/view_footer.png" alt="Footer Image">
+               <img src="<?= $base ?>/public/images/view_footer.png" alt="Footer Image" crossorigin="anonymous">
             </div>
 
             <!-- Buttons -->
