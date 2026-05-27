@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 /**
- * LOAD ENV FILE
+ * LOAD ENV FILE (LOCAL DEVELOPMENT)
  */
 $dotenvPath = __DIR__ . '/../';
 
@@ -15,30 +15,11 @@ if (file_exists($dotenvPath . '.env')) {
 /**
  * DATABASE VARIABLES
  */
-$host = getenv('MYSQLHOST') ?: ($_ENV['MYSQLHOST'] ?? null);
-$port = getenv('MYSQLPORT') ?: ($_ENV['MYSQLPORT'] ?? 3306);
-$dbname = getenv('MYSQLDATABASE') ?: ($_ENV['MYSQLDATABASE'] ?? null);
-$username = getenv('MYSQLUSER') ?: ($_ENV['MYSQLUSER'] ?? null);
-$password = getenv('MYSQLPASSWORD') ?: ($_ENV['MYSQLPASSWORD'] ?? null);
-
-/**
- * DEBUG VARIABLES
- */
-echo "<pre>";
-
-echo "HOST: ";
-var_dump($host);
-
-echo "PORT: ";
-var_dump($port);
-
-echo "DATABASE: ";
-var_dump($dbname);
-
-echo "USERNAME: ";
-var_dump($username);
-
-echo "</pre>";
+$host = getenv('MYSQLHOST');
+$port = getenv('MYSQLPORT') ?: 3306;
+$dbname = getenv('MYSQLDATABASE');
+$username = getenv('MYSQLUSER');
+$password = getenv('MYSQLPASSWORD');
 
 /**
  * DATABASE CONNECTION
@@ -56,15 +37,11 @@ try {
         ]
     );
 
-    echo "<h2 style='color:green'>✅ Database Connected Successfully</h2>";
+    $GLOBALS['pdo'] = $pdo;
 
 } catch (PDOException $e) {
 
-    echo "<h2 style='color:red'>❌ Database Connection Failed</h2>";
+    error_log("Database Connection Failed: " . $e->getMessage());
 
-    echo "<pre>";
-    echo htmlspecialchars($e->getMessage());
-    echo "</pre>";
+    throw new Exception("Database connection failed.");
 }
-
-exit;
