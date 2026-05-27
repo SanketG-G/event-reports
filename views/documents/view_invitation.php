@@ -7,8 +7,8 @@
         <div class="card-body">
             <!-- Department Header Image -->
             <div class="img-logo text-center">
-                <?php if (!empty($header_image)): ?>
-                    <img src="<?= htmlspecialchars($header_image) ?>" alt="Department Header Image" crossorigin="anonymous">
+                    <?php $header_src = (strpos($header_image, 'http') === 0) ? $header_image : $base . '/' . ltrim($header_image, '/'); ?>
+                    <img src="<?= htmlspecialchars($header_src) ?>" alt="Department Header Image" crossorigin="anonymous">
                 <?php else: ?>
                     <p class="text-muted">No header image available</p>
                 <?php endif; ?>
@@ -40,7 +40,8 @@
                 <!-- Coordinator -->
                 <div>
                     <?php if (!empty($coordinator_sign)): ?>
-                        <img src="<?= htmlspecialchars($coordinator_sign) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
+                        <?php $coord_src = (strpos($coordinator_sign, 'http') === 0) ? $coordinator_sign : $base . '/' . ltrim($coordinator_sign, '/'); ?>
+                        <img src="<?= htmlspecialchars($coord_src) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
                     <?php endif; ?>
                     <strong><?= htmlspecialchars($coordinator_name ?? 'Programme Coordinator') ?></strong>
                     <strong>Coordinator</strong>
@@ -51,7 +52,8 @@
                 <?php if (!empty($hod_name) && $hod_name !== 'N/A'): ?>
                     <div>
                         <?php if (!empty($hod_sign)): ?>
-                            <img src="<?= htmlspecialchars($hod_sign) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
+                            <?php $hod_src = (strpos($hod_sign, 'http') === 0) ? $hod_sign : $base . '/' . ltrim($hod_sign, '/'); ?>
+                            <img src="<?= htmlspecialchars($hod_src) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
                         <?php endif; ?>
                         <strong><?= htmlspecialchars($hod_name) ?></strong>
                         <strong>HOD</strong>
@@ -62,7 +64,8 @@
                 <!-- Principal -->
                 <div>
                     <?php if (!empty($principal_sign)): ?>
-                        <img src="<?= htmlspecialchars($principal_sign) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
+                        <?php $prin_src = (strpos($principal_sign, 'http') === 0) ? $principal_sign : $base . '/' . ltrim($principal_sign, '/'); ?>
+                        <img src="<?= htmlspecialchars($prin_src) ?>" style="width:150px; height:auto;" crossorigin="anonymous">
                     <?php endif; ?>
                     <strong><?= htmlspecialchars($principal_name ?? 'Principal') ?></strong>
                     <strong>Principal</strong>
