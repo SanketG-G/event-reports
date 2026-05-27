@@ -1,16 +1,16 @@
 
-CREATE DATABASE IF NOT EXISTS college_events
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_general_ci;
+-- CREATE DATABASE IF NOT EXISTS college_events
+-- CHARACTER SET utf8mb4
+-- COLLATE utf8mb4_general_ci;
 
-USE college_events;
+USE railway;
 /* ==========================================================
    Department & User Management System
    MySQL 5.7+ Compatible
    ========================================================== */
 
-SET SQL_MODE = "STRICT_ALL_TABLES";
-SET FOREIGN_KEY_CHECKS = 0;
+-- SET SQL_MODE = "STRICT_ALL_TABLES";
+-- SET FOREIGN_KEY_CHECKS = 0;
 
 CREATE TABLE departments (
     id CHAR(36) PRIMARY KEY,
