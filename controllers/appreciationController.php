@@ -261,7 +261,7 @@ class AppreciationController extends BaseController
        ✅ FETCH APPRECIATION PER GUEST
     ============================== */
    $stmt = $this->pdo->prepare("
-        SELECT a.*, ch.department
+        SELECT a.*, ch.department AS checklist_department
         FROM appreciation a
         JOIN checklists ch 
             ON BINARY a.checklist_id = BINARY ch.id
@@ -279,7 +279,7 @@ class AppreciationController extends BaseController
     /* ==============================
        HEADER IMAGE
     ============================== */
-    $deptArray = json_decode($appreciation['department'], true) ?? [];
+    $deptArray = json_decode($appreciation['checklist_department'], true) ?? [];
 
     // Default header
     $stmtDefault = $this->pdo->query("SELECT image FROM default_header LIMIT 1");

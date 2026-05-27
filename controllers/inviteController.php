@@ -278,7 +278,7 @@ class InviteController extends BaseController
 
         // Fetch invitation for this specific guest
         $stmt = $this->pdo->prepare("
-            SELECT i.*, ch.department
+            SELECT i.*, ch.department AS checklist_department
             FROM invite i
             JOIN checklists ch ON i.checklist_id = ch.id
             WHERE i.checklist_id = ? AND i.guest_id = ?
@@ -293,7 +293,7 @@ class InviteController extends BaseController
         }
 
         // Handle department header logic
-        $deptArray = json_decode($invitation['department'] ?? '[]', true) ?? [];
+        $deptArray = json_decode($invitation['checklist_department'] ?? '[]', true) ?? [];
         $header_image = '';
 
         // Default header
