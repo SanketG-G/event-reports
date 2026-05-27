@@ -7,6 +7,7 @@
         <div class="card-body">
             <!-- Department Header Image -->
             <div class="img-logo text-center">
+                <?php if (!empty($header_image)): ?>
                     <?php $header_src = (strpos($header_image, 'http') === 0) ? $header_image : $base . '/' . ltrim($header_image, '/'); ?>
                     <img src="<?= htmlspecialchars($header_src) ?>" alt="Department Header Image" crossorigin="anonymous">
                 <?php else: ?>
