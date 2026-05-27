@@ -39,6 +39,7 @@
             <!-- Signature Section -->
             <div class="signature">
                 <!-- Coordinator -->
+                <?php if (empty($is_multiple_departments)): ?>
                 <div>
                     <?php if (!empty($coordinator_sign)): ?>
                         <?php $coord_src = (strpos($coordinator_sign, 'http') === 0) ? $coordinator_sign : $base . '/' . ltrim($coordinator_sign, '/'); ?>
@@ -48,9 +49,10 @@
                     <strong>Coordinator</strong>
                     <strong>Keystone School of Engineering</strong>
                 </div>
+                <?php endif; ?>
 
                 <!-- HOD - Only show if HOD name is not default 'N/A' (meaning exactly one department exists) -->
-                <?php if (!empty($hod_name) && $hod_name !== 'N/A'): ?>
+                <?php if (!empty($is_multiple_departments) || (!empty($hod_name) && $hod_name !== 'N/A')): ?>
                     <div>
                         <?php if (!empty($hod_sign)): ?>
                             <?php $hod_src = (strpos($hod_sign, 'http') === 0) ? $hod_sign : $base . '/' . ltrim($hod_sign, '/'); ?>

@@ -105,10 +105,11 @@ class AppreciationController extends BaseController
         
         $deptArray = json_decode($deptRow['department'] ?? '[]', true);
         
-        $dept_id_to_use = null;
+        $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
             $dept_id_to_use = reset($deptArray);
-        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        } else {
             $dept_id_to_use = $deptRow['userdept_id'] ?? null;
         }
 
@@ -200,6 +201,7 @@ class AppreciationController extends BaseController
             'guestName'          => $guestName,
             'companyName'        => $companyName,
             'companyDesignation' => $companyDesignation,
+            'is_multiple_departments' => (is_array($deptArray) && count($deptArray) > 1),
             'coordinator_name'   => $coordinator_name,
             'hod_name'           => $hod_name,
             'existingAppreciation' => $existingAppreciation,
@@ -287,10 +289,11 @@ class AppreciationController extends BaseController
     $deptArray = json_decode($appreciation['checklist_department'], true) ?? [];
     $header_image = '';
 
-    $dept_id_to_use = null;
+    $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
     if (is_array($deptArray) && count($deptArray) === 1) {
         $dept_id_to_use = reset($deptArray);
-    } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+    } else {
         $dept_id_to_use = $appreciation['userdept_id'] ?? null;
     }
 
@@ -340,10 +343,11 @@ class AppreciationController extends BaseController
     $hod_name = 'N/A';
     $hod_sign = '';
 
-    $dept_id_to_use = null;
+    $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
     if (is_array($deptArray) && count($deptArray) === 1) {
         $dept_id_to_use = reset($deptArray);
-    } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+    } else {
         $dept_id_to_use = $appreciation['userdept_id'] ?? null;
     }
 
@@ -388,7 +392,8 @@ class AppreciationController extends BaseController
         'subject'            => htmlspecialchars($appreciation['subject'] ?? ''),
         'respected'          => htmlspecialchars($appreciation['respected'] ?? ''),
         'body' => $appreciation['body'] ?? '',
-        'coordinator_name'   => $coordinator_name,
+        'is_multiple_departments' => (is_array($deptArray) && count($deptArray) > 1),
+            'coordinator_name'   => $coordinator_name,
         'coordinator_sign'   => $coordinator_sign,
         'hod_name'           => $hod_name,
         'hod_sign'           => $hod_sign,

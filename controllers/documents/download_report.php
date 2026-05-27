@@ -112,10 +112,11 @@ try {
     $deptArray = json_decode($checklist['department'], true);
     $header_image = "";
     
-    $dept_id_to_use = null;
+    $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
     if(is_array($deptArray) && count($deptArray)==1){
         $dept_id_to_use=reset($deptArray);
-    } elseif(!is_array($deptArray) || count($deptArray)==0){
+    } else {
         $dept_id_to_use=$checklist['userdept_id'] ?? null;
     }
 
@@ -160,10 +161,11 @@ try {
     $hod_name="N/A";
     $hod_sign="";
     $deptArray = json_decode($checklist['department'] ?? '[]', true);
-    $dept_id_to_use = null;
+    $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
     if (is_array($deptArray) && count($deptArray) === 1) {
         $dept_id_to_use = reset($deptArray);
-    } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+    } else {
         $dept_id_to_use = $checklist['userdept_id'] ?? null;
     }
 
@@ -412,11 +414,13 @@ $coordinator_path = buildImagePath($coordinator_sign);
 $hod_path         = buildImagePath($hod_sign);
 $principal_path   = buildImagePath($principal_sign);
 
-$signature_data = [
-    ['name' => $coordinator_name, 'title' => 'Coordinator', 'path' => $coordinator_path]
-];
+$signature_data = [];
 
-if (!empty($hod_name) && $hod_name !== 'N/A') {
+if (empty($is_multiple_departments)) {
+    $signature_data[] = ['name' => $coordinator_name, 'title' => 'Coordinator', 'path' => $coordinator_path];
+}
+
+if (!empty($is_multiple_departments) || (!empty($hod_name) && $hod_name !== 'N/A')) {
     $signature_data[] = ['name' => $hod_name, 'title' => 'HOD', 'path' => $hod_path];
 }
 

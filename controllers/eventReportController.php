@@ -110,10 +110,11 @@ private function deleteFromCloudinary($public_id)
         // HOD name - only if exactly one department
         $hod_name = 'Not assigned';
         $deptArray = json_decode($programme['department'] ?? '[]', true);
-        $dept_id_to_use = null;
+        $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
             $dept_id_to_use = reset($deptArray);
-        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        } else {
             $dept_id_to_use = $programme['userdept_id'] ?? null;
         }
 
@@ -326,6 +327,7 @@ private function deleteFromCloudinary($public_id)
             'event_time' => $event_time,
             'event_venue' => $event_venue,
             'guests' => $guests,
+            'is_multiple_departments' => (is_array($deptArray) && count($deptArray) > 1),
             'coordinator_name' => $coordinator_name,
             'hod_name' => $hod_name,
             'form_data' => $form_data,
@@ -407,10 +409,11 @@ private function deleteFromCloudinary($public_id)
             $deptArray = json_decode($checklist['department'] ?? '[]', true);
             $header_image = '';
 
+            $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
             $dept_id_to_use = null;
             if (is_array($deptArray) && count($deptArray) === 1) {
                 $dept_id_to_use = reset($deptArray);
-            } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+            } else {
                 $dept_id_to_use = $checklist['userdept_id'] ?? null;
             }
 
@@ -466,10 +469,11 @@ private function deleteFromCloudinary($public_id)
             $hod_name = 'N/A';
             $hod_sign = '';
             $deptArray = json_decode($checklist['department'] ?? '[]', true);
+            $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
             $dept_id_to_use = null;
             if (is_array($deptArray) && count($deptArray) === 1) {
                 $dept_id_to_use = reset($deptArray);
-            } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+            } else {
                 $dept_id_to_use = $checklist['userdept_id'] ?? null;
             }
 
@@ -547,7 +551,8 @@ if (isset($_SESSION['user_id'])) {
     'photos'             => $photos,
     'captions'           => $captions,
 
-    'coordinator_name'   => $coordinator_name,
+    'is_multiple_departments' => (is_array($deptArray) && count($deptArray) > 1),
+            'coordinator_name'   => $coordinator_name,
     'coordinator_sign'   => $coordinator_sign,
     'hod_name'           => $hod_name,
     'hod_sign'           => $hod_sign,

@@ -75,6 +75,7 @@
             <div class="signature">
 
                 <!-- Coordinator -->
+                <?php if (empty($is_multiple_departments)): ?>
                 <div>
                     <?php if (!empty($coordinator_sign)): ?>
                         <img src="<?= htmlspecialchars($coordinator_sign) ?>" width="150">
@@ -86,7 +87,7 @@
                 </div>
 
                 <!-- HOD - Only show if HOD name is not default 'N/A' (meaning exactly one department exists) -->
-                <?php if (!empty($hod_name) && $hod_name !== 'N/A'): ?>
+                <?php if (!empty($is_multiple_departments) || (!empty($hod_name) && $hod_name !== 'N/A')): ?>
                     <div>
                         <?php if (!empty($hod_sign)): ?>
                             <img src="<?= htmlspecialchars($hod_sign) ?>" width="150">

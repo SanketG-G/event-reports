@@ -105,10 +105,11 @@ class InviteController extends BaseController
         
         $deptArray = json_decode($deptRow['department'] ?? '[]', true);
         
-        $dept_id_to_use = null;
+        $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
             $dept_id_to_use = reset($deptArray);
-        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        } else {
             $dept_id_to_use = $deptRow['userdept_id'] ?? null;
         }
 
@@ -202,6 +203,7 @@ class InviteController extends BaseController
             'guestName'          => $guestName,
             'companyName'        => $companyName,
             'companyDesignation' => $companyDesignation,
+            'is_multiple_departments' => (is_array($deptArray) && count($deptArray) > 1),
             'coordinator_name'   => $coordinator_name,
             'hod_name'           => $hod_name,
             'existingInvitation' => $existingInvitation,
@@ -301,10 +303,11 @@ class InviteController extends BaseController
         $deptArray = json_decode($invitation['checklist_department'] ?? '[]', true) ?? [];
         $header_image = '';
         
-        $dept_id_to_use = null;
+        $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
             $dept_id_to_use = reset($deptArray);
-        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        } else {
             $dept_id_to_use = $invitation['userdept_id'] ?? null;
         }
 
@@ -369,10 +372,11 @@ class InviteController extends BaseController
         $hod_sign = '';
         
         // Check if exactly one department exists (same logic as manage() method)
-        $dept_id_to_use = null;
+        $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
             $dept_id_to_use = reset($deptArray);
-        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        } else {
             $dept_id_to_use = $invitation['userdept_id'] ?? null;
         }
 
@@ -412,6 +416,7 @@ class InviteController extends BaseController
             'subject'            => htmlspecialchars($invitation['subject'] ?? ''),
             'respected'          => htmlspecialchars($invitation['respected'] ?? ''),
             'body' => htmlspecialchars_decode($invitation['body'] ?? ''),
+            'is_multiple_departments' => (is_array($deptArray) && count($deptArray) > 1),
             'coordinator_name'   => $coordinator_name,
             'coordinator_sign'   => $coordinator_sign,
             'hod_name'           => $hod_name,

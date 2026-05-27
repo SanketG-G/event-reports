@@ -78,10 +78,11 @@ class NoticeController extends BaseController
         
         $deptArray = json_decode($deptRow['department'] ?? '[]', true);
         
-        $dept_id_to_use = null;
+        $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
             $dept_id_to_use = reset($deptArray);
-        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        } else {
             $dept_id_to_use = $deptRow['userdept_id'] ?? null;
         }
 
@@ -223,6 +224,7 @@ class NoticeController extends BaseController
             'multi_day'        => $programme['multi_day'] ?? 0,
             'programme_start_date' => htmlspecialchars($programme['programme_start_date'] ?? ''),
             'programme_end_date'   => htmlspecialchars($programme['programme_end_date'] ?? ''),
+            'is_multiple_departments' => (is_array($deptArray) && count($deptArray) > 1),
             'coordinator_name' => $coordinator_name,
             'hod_name'         => $hod_name,
             'form_data'        => $form_data,
@@ -282,10 +284,11 @@ class NoticeController extends BaseController
         $deptArray = json_decode($checklist['department'], true) ?? [];
         $header_image = '';
 
-        $dept_id_to_use = null;
+        $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
             $dept_id_to_use = reset($deptArray);
-        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        } else {
             $dept_id_to_use = $checklist['userdept_id'] ?? null;
         }
 
@@ -332,10 +335,11 @@ class NoticeController extends BaseController
         $hod_name = 'N/A';
         $hod_sign = '';
         
-        $dept_id_to_use = null;
+        $is_multiple_departments = (is_array($deptArray) && count($deptArray) > 1);
+            $dept_id_to_use = null;
         if (is_array($deptArray) && count($deptArray) === 1) {
             $dept_id_to_use = reset($deptArray);
-        } elseif (!is_array($deptArray) || count($deptArray) === 0) {
+        } else {
             $dept_id_to_use = $checklist['userdept_id'] ?? null;
         }
 
@@ -377,6 +381,7 @@ class NoticeController extends BaseController
                                     ? date('h:i A', strtotime($notice['event_time']))
                                     : 'N/A',
             'event_venue'        => htmlspecialchars($notice['event_venue'] ?? ''),
+            'is_multiple_departments' => (is_array($deptArray) && count($deptArray) > 1),
             'coordinator_name'   => $coordinator_name,
             'coordinator_sign'   => $coordinator_sign,
             'hod_name'           => $hod_name,

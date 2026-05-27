@@ -107,6 +107,7 @@ function getAssetPath($path) {
 <!-- SIGNATURES -->
 <div class="signature">
 
+<?php if (empty($is_multiple_departments)): ?>
 <div>
 <?php if($coordinator_sign): ?>
 <img src="<?php echo htmlspecialchars($coordinator_sign); ?>" width="150">
@@ -114,9 +115,10 @@ function getAssetPath($path) {
 <strong><?php echo $coordinator_name; ?></strong>
 Coordinator
 </div>
+<?php endif; ?>
 
 <!-- HOD - Only show if HOD name is not default 'N/A' (meaning exactly one department exists) -->
-<?php if (!empty($hod_name) && $hod_name !== 'N/A'): ?>
+<?php if (!empty($is_multiple_departments) || (!empty($hod_name) && $hod_name !== 'N/A')): ?>
 <div>
 <?php if($hod_sign): ?>
 <img src="<?php echo htmlspecialchars($hod_sign); ?>" width="150">
