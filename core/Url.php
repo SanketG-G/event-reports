@@ -29,7 +29,11 @@ class Url {
             } elseif (getenv('BASE_URL') !== false) {
                 self::$baseUrl = getenv('BASE_URL');
             } else {
-                self::$baseUrl = '/event-reports';
+                if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
+                    self::$baseUrl = '/event-reports';
+                } else {
+                    self::$baseUrl = ''; // Root path for Railway/Production
+                }
             }
         }
         return self::$baseUrl;
