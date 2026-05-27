@@ -401,18 +401,18 @@ private function deleteFromCloudinary($public_id)
             $deptArray = json_decode($checklist['department'] ?? '[]', true);
             $header_image = '';
 
-            $stmtDefault = $this->pdo->query("SELECT image FROM default_header LIMIT 1");
-            $defaultRow = $stmtDefault->fetch(PDO::FETCH_ASSOC);
-            $header_image = $defaultRow['image'] ?? '';
-
-            if (is_array($deptArray) && count($deptArray) === 1 && !empty($deptArray[0])) {
-                $dept_id = $deptArray[0]; // Keep as UUID string
-                $stmtDept = $this->pdo->prepare("SELECT header_image FROM departments WHERE id = ?");
-                $stmtDept->execute([$dept_id]);
-                $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
-                if (!empty($deptRow['header_image'])) {
-                    $header_image = $deptRow['header_image'];
+            if (is_array($deptArray) && count($deptArray) === 1) {
+                $dept_id = reset($deptArray);
+                if (!empty($dept_id)) {
+                    $stmtDept = $this->pdo->prepare("SELECT header_image FROM departments WHERE id = ?");
+                    $stmtDept->execute([$dept_id]);
+                    $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
+                    $header_image = $deptRow['header_image'] ?? '';
                 }
+            } else {
+                $stmtDefault = $this->pdo->query("SELECT image FROM default_header LIMIT 1");
+                $defaultRow = $stmtDefault->fetch(PDO::FETCH_ASSOC);
+                $header_image = $defaultRow['image'] ?? '';
             }
 
             // Format data

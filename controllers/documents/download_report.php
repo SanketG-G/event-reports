@@ -110,20 +110,22 @@ try {
     }
 
     $deptArray = json_decode($checklist['department'], true);
-    $default_stmt = $conn->prepare("SELECT image FROM default_header LIMIT 1");
-    $default_stmt->execute();
-    $default_row = $default_stmt->get_result()->fetch_assoc();
-    $header_image = $default_row['image'] ?? "";
-    $dept_id = null;
+    $header_image = "";
+    
     if(is_array($deptArray) && count($deptArray)==1){
-        $dept_id=$deptArray[0];
-        $dept_stmt=$conn->prepare("SELECT header_image FROM departments WHERE id=?");
-        $dept_stmt->bind_param("s",$dept_id);
-        $dept_stmt->execute();
-        $dept_row=$dept_stmt->get_result()->fetch_assoc();
-        if(!empty($dept_row['header_image'])){
-            $header_image=$dept_row['header_image'];
+        $dept_id=reset($deptArray);
+        if (!empty($dept_id)) {
+            $dept_stmt=$conn->prepare("SELECT header_image FROM departments WHERE id=?");
+            $dept_stmt->bind_param("s",$dept_id);
+            $dept_stmt->execute();
+            $dept_row=$dept_stmt->get_result()->fetch_assoc();
+            $header_image=$dept_row['header_image'] ?? "";
         }
+    } else {
+        $default_stmt = $conn->prepare("SELECT image FROM default_header LIMIT 1");
+        $default_stmt->execute();
+        $default_row = $default_stmt->get_result()->fetch_assoc();
+        $header_image = $default_row['image'] ?? "";
     }
 
     $programme_name = htmlspecialchars($checklist['programme_name']);

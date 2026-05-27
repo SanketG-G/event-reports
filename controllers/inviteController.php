@@ -296,20 +296,20 @@ class InviteController extends BaseController
         $deptArray = json_decode($invitation['checklist_department'] ?? '[]', true) ?? [];
         $header_image = '';
 
-        // Default header
-        $stmtDefault = $this->pdo->query("SELECT image FROM default_header LIMIT 1");
-        $defaultRow = $stmtDefault->fetch(PDO::FETCH_ASSOC);
-        $header_image = $defaultRow['image'] ?? '';
-
-        // If exactly one department
-        if (is_array($deptArray) && count($deptArray) === 1 && !empty($deptArray[0])) {
-            $dept_id = $deptArray[0]; // Keep as UUID string
-            $stmtDept = $this->pdo->prepare("SELECT header_image FROM departments WHERE id = ?");
-            $stmtDept->execute([$dept_id]);
-            $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
-            if (!empty($deptRow['header_image'])) {
-                $header_image = $deptRow['header_image'];
+        if (is_array($deptArray) && count($deptArray) === 1) {
+            // Exactly one department -> Use ONLY department header
+            $dept_id = reset($deptArray);
+            if (!empty($dept_id)) {
+                $stmtDept = $this->pdo->prepare("SELECT header_image FROM departments WHERE id = ?");
+                $stmtDept->execute([$dept_id]);
+                $deptRow = $stmtDept->fetch(PDO::FETCH_ASSOC);
+                $header_image = $deptRow['header_image'] ?? '';
             }
+        } else {
+            // Multiple departments (or zero) -> Use default header
+            $stmtDefault = $this->pdo->query("SELECT image FROM default_header LIMIT 1");
+            $defaultRow = $stmtDefault->fetch(PDO::FETCH_ASSOC);
+            $header_image = $defaultRow['image'] ?? '';
         }
 
         // Date formatting
