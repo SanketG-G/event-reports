@@ -149,11 +149,21 @@ value="<?= $checklist['coordinator_name'] ?>">
 <!-- DEPARTMENT -->
 <label>Department</label><br>
 <?php
+global $pdo;
+$user_dept_id = null;
+if (isset($_SESSION['user_id']) && $pdo) {
+    $uStmt = $pdo->prepare("SELECT department_id FROM users WHERE id = ?");
+    $uStmt->execute([$_SESSION['user_id']]);
+    $user_dept_id = $uStmt->fetchColumn();
+}
+
 foreach($departments as $d){
-$chk=in_array($d['id'],$department)?"checked":"";
+    $isUserDept = ($d['id'] === $user_dept_id);
+    $chk = (in_array($d['id'],$department) || $isUserDept) ? "checked" : "";
+    $onclick = $isUserDept ? 'onclick="return false;"' : '';
 ?>
 <div class="form-check">
-<input type="checkbox" name="department[]" class="form-check-input" value="<?= $d['id'] ?>" <?= $chk ?> id="dept_<?= $d['id'] ?>">
+<input type="checkbox" name="department[]" class="form-check-input" value="<?= $d['id'] ?>" <?= $chk ?> <?= $onclick ?> id="dept_<?= $d['id'] ?>">
 <label class="form-check-label" for="dept_<?= $d['id'] ?>"><?= $d['name'] ?></label>
 </div>
 <?php } ?>

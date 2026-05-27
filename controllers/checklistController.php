@@ -323,7 +323,12 @@ if ($multi_day === 1) {
        CONTINUE ORIGINAL INSERT
     =============================== */
 
-    $department_json = $this->jsonField('department');
+    $departments = $_POST['department'] ?? [];
+    if (!is_array($departments)) $departments = [];
+    if ($userDeptId && !in_array($userDeptId, $departments)) {
+        $departments[] = $userDeptId;
+    }
+    $department_json = !empty($departments) ? json_encode(array_values(array_unique($departments))) : null;
     $invitation_json = $this->jsonField('invitation');
     $communication   = $this->checkbox('communication');
    $upload = $this->uploadApplicationLetterToCloudinary();
@@ -586,7 +591,16 @@ $this->redirect('/event-reports/dashboard');
     $department_json = null;
 
     if ($userRole === 'coordinator' || $userRole === 'principal') {
-        $department_json = $this->jsonField('department');
+        $stmtCreatorDept = $this->pdo->prepare("SELECT userdept_id FROM checklists WHERE id = ?");
+        $stmtCreatorDept->execute([$checklist_id]);
+        $creatorDeptId = $stmtCreatorDept->fetchColumn();
+
+        $departments = $_POST['department'] ?? [];
+        if (!is_array($departments)) $departments = [];
+        if ($creatorDeptId && !in_array($creatorDeptId, $departments)) {
+            $departments[] = $creatorDeptId;
+        }
+        $department_json = !empty($departments) ? json_encode(array_values(array_unique($departments))) : null;
     } else {
         // Get current department from database
         $current_department = $this->getChecklistDepartment($checklist_id);

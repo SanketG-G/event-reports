@@ -158,10 +158,26 @@ $form_action = $edit_mode ? Url::to('create-checklist') . '/update' : Url::to('c
         <?php
         $stmt = $pdo->query("SELECT id, name FROM departments ORDER BY name ASC");
         $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $user_dept_id = null;
+        if (isset($_SESSION['user_id'])) {
+            $uStmt = $pdo->prepare("SELECT department_id FROM users WHERE id = ?");
+            $uStmt->execute([$_SESSION['user_id']]);
+            $user_dept_id = $uStmt->fetchColumn();
+        }
+
         foreach ($departments as $dept):
+            $isUserDept = ($dept['id'] === $user_dept_id);
+            $isChecked = $isUserDept;
+            if (!$isChecked && isset($checklist_data['department'])) {
+                $saved_depts = is_array($checklist_data['department']) ? $checklist_data['department'] : json_decode($checklist_data['department'] ?? '[]', true);
+                if (is_array($saved_depts) && in_array($dept['id'], $saved_depts)) {
+                    $isChecked = true;
+                }
+            }
         ?>
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="department[]" value="<?= htmlspecialchars($dept['id']) ?>" id="dept_<?= $dept['id'] ?>">
+                <input class="form-check-input" type="checkbox" name="department[]" value="<?= htmlspecialchars($dept['id']) ?>" id="dept_<?= $dept['id'] ?>" <?= $isChecked ? 'checked' : '' ?> <?= $isUserDept ? 'onclick="return false;"' : '' ?>>
                 <label class="form-check-label" for="dept_<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></label>
             </div>
         <?php endforeach; ?>
