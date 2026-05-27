@@ -210,8 +210,20 @@ $pdf->SetFont('helvetica', 'B', 16);
 // -------------------- HEADER IMAGE --------------------
 $header_image_url = buildImagePath($header_image);
 if (!empty($header_image_url)) {
-    $pdf->Image($header_image_url, 15, 12, 180, 0, '', '', 'T', false, 300);
-    $pdf->Ln(42);
+    // Safely load image for TCPDF
+    $imgData = null;
+    if (filter_var($header_image_url, FILTER_VALIDATE_URL)) {
+        $imgData = @file_get_contents($header_image_url);
+    } elseif (file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($header_image_url, '/'))) {
+        $imgData = @file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($header_image_url, '/'));
+    }
+    
+    if ($imgData) {
+        $pdf->Image('@' . $imgData, 15, 12, 180, 0, '', '', 'T', false, 300);
+        $pdf->Ln(42);
+    } else {
+        $pdf->Ln(12);
+    }
 } else {
     $pdf->Ln(12);
 }
@@ -310,44 +322,53 @@ if (!empty($photos)) {
         // Desired width
         $img_width = 100;
 
-// Safe image size fetch
-$img_info = @getimagesize($photo_url);
-
-if ($img_info) {
-    list($original_width, $original_height) = $img_info;
-} else {
-    $original_width = 100;
-    $original_height = 100;
+// Safely load image for TCPDF
+$imgData = null;
+if (filter_var($photo_url, FILTER_VALIDATE_URL)) {
+    $imgData = @file_get_contents($photo_url);
+} elseif (file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($photo_url, '/'))) {
+    $imgData = @file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($photo_url, '/'));
 }
 
-// Calculate proportional height
-$img_height = ($original_height / $original_width) * $img_width;
+if ($imgData) {
+    // Safe image size fetch
+    $img_info = @getimagesizefromstring($imgData);
 
-// Limit height (no distortion)
-$max_height = 120;
-if ($img_height > $max_height) {
-    $ratio = $max_height / $img_height;
-    $img_height = $max_height;
-    $img_width = $img_width * $ratio;
-}
+    if ($img_info) {
+        list($original_width, $original_height) = $img_info;
+    } else {
+        $original_width = 100;
+        $original_height = 100;
+    }
 
-// Page break check
-$current_y = $pdf->GetY();
-$page_height = $pdf->getPageHeight();
-$margin_bottom = $pdf->getBreakMargin();
+    // Calculate proportional height
+    $img_height = ($original_height / $original_width) * $img_width;
 
-if ($current_y + $img_height + 20 > $page_height - $margin_bottom) {
-    $pdf->AddPage();
-}
+    // Limit height (no distortion)
+    $max_height = 120;
+    if ($img_height > $max_height) {
+        $ratio = $max_height / $img_height;
+        $img_height = $max_height;
+        $img_width = $img_width * $ratio;
+    }
 
-// Center image
-$pdf->SetX((210 - $img_width) / 2);
+    // Page break check
+    $current_y = $pdf->GetY();
+    $page_height = $pdf->getPageHeight();
+    $margin_bottom = $pdf->getBreakMargin();
 
-// Draw image
-$pdf->Image($photo_url, '', '', $img_width, $img_height);
+    if ($current_y + $img_height + 20 > $page_height - $margin_bottom) {
+        $pdf->AddPage();
+    }
 
-// Move cursor
-$pdf->Ln($img_height + 5);
+    // Center image
+    $pdf->SetX((210 - $img_width) / 2);
+
+    // Draw image
+    $pdf->Image('@' . $imgData, '', '', $img_width, $img_height);
+
+    // Move cursor
+    $pdf->Ln($img_height + 5);
 
 // Caption
 $pdf->SetFont('helvetica', 'I', 10);
@@ -409,18 +430,27 @@ foreach ($signature_data as $index => $sig) {
     $x = ($signature_count == 2) ? (($index == 0) ? $start_x : $right_x) : ($start_x + ($index * $col_width));
 
     if (!empty($sig['path'])) {
-        $pdf->Image(
-            $sig['path'],
-            $x + ($col_width - $sig_image_width)/2,
-            $sig_y,
-            $sig_image_width,
-            0,   // ← auto height (default behavior)
-            '',
-            '',
-            'T',
-            false,
-            300
-        );
+        $sigData = null;
+        if (filter_var($sig['path'], FILTER_VALIDATE_URL)) {
+            $sigData = @file_get_contents($sig['path']);
+        } elseif (file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($sig['path'], '/'))) {
+            $sigData = @file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($sig['path'], '/'));
+        }
+
+        if ($sigData) {
+            $pdf->Image(
+                '@' . $sigData,
+                $x + ($col_width - $sig_image_width)/2,
+                $sig_y,
+                $sig_image_width,
+                0,   // ← auto height (default behavior)
+                '',
+                '',
+                'T',
+                false,
+                300
+            );
+        }
     }
 }
 
