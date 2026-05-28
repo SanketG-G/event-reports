@@ -214,7 +214,8 @@ class InviteController extends BaseController
             'recipient'          => $recipient,
             'success'            => $success,
             'errors'             => $errors,
-            'programme_name'     => htmlspecialchars($checklist['programme_name'] ?? '')
+            'programme_name'     => htmlspecialchars($checklist['programme_name'] ?? ''),
+            'programme_date'     => htmlspecialchars($checklist['programme_date'] ?? '')
         ]);
     }
 
