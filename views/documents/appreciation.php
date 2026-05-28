@@ -200,7 +200,7 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Event Date</label>
-                    <input type="text" class="form-control" id="aiEventDate" value="<?= htmlspecialchars($date ?? '') ?>" readonly>
+                    <input type="text" class="form-control" id="aiEventDate" value="<?= htmlspecialchars($programme_date ?? '') ?>" readonly>
                 </div>
 
                 <div class="mb-3">

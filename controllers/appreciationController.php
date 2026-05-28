@@ -212,7 +212,12 @@ class AppreciationController extends BaseController
             'recipient'          => $recipient,
             'success'            => $success,
             'errors'             => $errors,
-            'programme_name'     => htmlspecialchars($checklist['programme_name'] ?? '')
+            'programme_name'     => htmlspecialchars($checklist['programme_name'] ?? ''),
+            'programme_date'     => htmlspecialchars(
+                ($checklist['multi_day'] ?? 0) 
+                ? ($checklist['programme_start_date'] . ' to ' . $checklist['programme_end_date'])
+                : ($checklist['programme_date'] ?? '')
+            )
         ]);
     }
 
